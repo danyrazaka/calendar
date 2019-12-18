@@ -26,11 +26,52 @@ Released under the MIT license: http://jsbin.mit-license.org
       <i class="calendar icon"></i>
       <input type="text" placeholder="Date/Time">
     </div>
-  </div>
+  </div><br>
+  <input type="submit" value="Submit" id="submitButton">
   <br/>
 
 <script id="jsbin-javascript">
 $('#example1').calendar();
+
+(function (d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) {
+            return;
+        }
+        js = d.createElement(s);
+        js.id = id;
+        js.src = "//connect.facebook.com/en_US/messenger.Extensions.js";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'Messenger'));
+
+    window.extAsyncInit = () => {
+        // TODO: How to parse env file from here?
+        MessengerExtensions.getSupportedFeatures(function success(result) {
+            let features = result.supported_features;
+            if (features.includes("context")) {
+                MessengerExtensions.getContext('<APP_ID>',
+                    function success(thread_context) {
+                        // success
+                        document.getElementById("psid").value = thread_context.psid;
+                    },
+                    function error(err) {
+                        // error
+                        console.log(err);
+                    }
+                );
+            }
+        }, function error(err) {
+            // error retrieving supported features
+            console.log(err);
+        });
+        document.getElementById('submitButton').addEventListener('click', () => {
+            MessengerExtensions.requestCloseBrowser(function success() {
+                console.log("Webview closing");
+            }, function error(err) {
+                console.log(err);
+            });
+        });
+    };
 </script>
 </body>
 </html>
